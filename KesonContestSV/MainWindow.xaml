@@ -1,0 +1,138 @@
+﻿<Window x:Class="KesonContestSV.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KesonContestSV"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen" 
+        Title="Keson Server" Height="900" Width="1600">
+    <Window.Resources>
+        <Style x:Key="st_texbox" TargetType="TextBox">
+            <Setter Property="Background" Value="{x:Null}"/>
+            <Setter Property="Text" Value="Hello"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="30"/>
+            <Setter Property="BorderBrush" Value="{x:Null}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        <Style x:Key="lb_data" TargetType="Label">
+            <Setter Property="Background" Value="{x:Null}"/>
+            <Setter Property="Content" Value="Helloooo"/>
+            <Setter Property="FontSize" Value="30"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style x:Key="st_listview" TargetType="ListView">
+            <Setter Property="Background" Value="{x:Null}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+
+        </Style>
+
+        <Style x:Key="st_button" TargetType="Button">
+            <Setter Property="Background" Value="Orange"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="30"/>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Image x:Name="im_bg" Source="BackGround.png" Stretch="Fill"/>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="10*"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="1">
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.6*"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="8*"/>
+                        <ColumnDefinition Width="2*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="10*"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Column="1" Grid.Row="1" >
+                        <ListView x:Name="lv_GK" Style="{StaticResource st_listview}">
+                            <Label Style="{StaticResource lb_data}"/>
+                            <Label Style="{StaticResource lb_data}"/>
+                            <Label Style="{StaticResource lb_data}"/>
+                            <Label Style="{StaticResource lb_data}"/>
+                            <Label Style="{StaticResource lb_data}"/>
+                            <Label Style="{StaticResource lb_data}"/>
+                            <Label Style="{StaticResource lb_data}"/>
+                            <Label Style="{StaticResource lb_data}"/>
+                        </ListView>
+                    </Grid>
+                    <Grid Grid.Column="2" Grid.Row="1" >
+                        <ListView x:Name="lv_Result" Style="{StaticResource st_listview}">
+                            <Label Style="{StaticResource lb_data}"/>
+                            <Label Style="{StaticResource lb_data}"/>
+                            <Label Style="{StaticResource lb_data}"/>
+                            <Label Style="{StaticResource lb_data}"/>
+                            <Label Style="{StaticResource lb_data}"/>
+                            <Label Style="{StaticResource lb_data}"/>
+                            <Label Style="{StaticResource lb_data}"/>
+                            <Label Style="{StaticResource lb_data}"/>
+                        </ListView>
+                    </Grid>
+                    <Grid Grid.Column="0" Grid.Row="1" >
+                        <ListView x:Name="lv_stt" Style="{StaticResource st_listview}">
+                            <Ellipse Width="50" Height="50" Fill="Green" Stroke="White" StrokeThickness="4"/>
+                            <Ellipse Width="50" Height="50" Fill="Green" Stroke="White" StrokeThickness="4"/>
+                            <Ellipse Width="50" Height="50" Fill="Green" Stroke="White" StrokeThickness="4"/>
+                            <Ellipse Width="50" Height="50" Fill="Green" Stroke="White" StrokeThickness="4"/>
+                            <Ellipse Width="50" Height="50" Fill="Green" Stroke="White" StrokeThickness="4"/>
+                            <Ellipse Width="50" Height="50" Fill="Green" Stroke="White" StrokeThickness="4"/>
+                            <Ellipse Width="50" Height="50" Fill="Green" Stroke="White" StrokeThickness="4"/>
+                            <Ellipse Width="50" Height="50" Fill="Green" Stroke="White" StrokeThickness="4"/>
+                        </ListView>
+                    </Grid>
+                    <Grid Grid.Row="1" Grid.Column="3">
+                        <ListBox x:Name="lbox_Client">
+                            
+                        </ListBox>
+                    </Grid>
+                </Grid>
+                <Label/>
+            </Grid>
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Column="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.5*"/>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0">
+                        <Ellipse Width="50" Height="50" Fill="Green" Stroke="White" StrokeThickness="4"/>
+                    </Grid>
+                    <Grid Grid.Column="1">
+                        <TextBox x:Name="tb_address" Style="{StaticResource st_texbox}" Text=""/>
+                    </Grid>
+                    <Grid Grid.Column="2">
+                        <Button Style="{StaticResource st_button}"
+                            Content="START" Click="Button_Click"/>
+                    </Grid>
+
+                </Grid>
+                <Grid Grid.Column="2">
+                    <TextBox x:Name="tb_receive" Style="{StaticResource st_texbox}" Text=""/>
+                </Grid>
+            </Grid>
+            <Grid Grid.Row="2">
+                <Label x:Name="lb_status" Style="{StaticResource lb_data}"/>
+            </Grid>
+        </Grid>
+            
+    </Grid>
+</Window>
