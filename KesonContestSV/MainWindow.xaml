@@ -20,20 +20,26 @@
         </Style>
         <Style x:Key="lb_data" TargetType="Label">
             <Setter Property="Background" Value="{x:Null}"/>
-            <Setter Property="Content" Value="Helloooo"/>
+            <Setter Property="Content" Value="25 50 40   25.50.40   25|50|40   25:50:40   25|50|40   25|50|40   25|50|40   25|50|40"/>
             <Setter Property="FontSize" Value="30"/>
             <Setter Property="Foreground" Value="White"/>
         </Style>
         <Style x:Key="st_listview" TargetType="ListView">
             <Setter Property="Background" Value="{x:Null}"/>
             <Setter Property="BorderThickness" Value="0"/>
-
+            <Setter Property="FontSize" Value="30"/>
+            <Setter Property="Foreground" Value="White"/>
         </Style>
 
         <Style x:Key="st_button" TargetType="Button">
             <Setter Property="Background" Value="Orange"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontSize" Value="30"/>
+        </Style>
+        <Style x:Key="st_StackPanel_result" TargetType="StackPanel">
+            <Setter Property="Background" Value="{x:Null}"/>
+            <Setter Property="Orientation" Value="Horizontal"/>
+            <Setter Property="Height" Value="50"/>
         </Style>
     </Window.Resources>
     <Grid>
@@ -49,57 +55,44 @@
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="0.6*"/>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="8*"/>
-                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="1.4*"/>
+                        <ColumnDefinition Width="0.6*"/>
+                        <ColumnDefinition Width="10*"/>
+                        <ColumnDefinition Width="0.5*"/>
                     </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="1*"/>
-                        <RowDefinition Height="10*"/>
-                    </Grid.RowDefinitions>
-                    <Grid Grid.Column="1" Grid.Row="1" >
+                    <Grid Grid.Column="1"  Margin="0,53.5,0,0">
                         <ListView x:Name="lv_GK" Style="{StaticResource st_listview}">
-                            <Label Style="{StaticResource lb_data}"/>
-                            <Label Style="{StaticResource lb_data}"/>
-                            <Label Style="{StaticResource lb_data}"/>
-                            <Label Style="{StaticResource lb_data}"/>
-                            <Label Style="{StaticResource lb_data}"/>
-                            <Label Style="{StaticResource lb_data}"/>
-                            <Label Style="{StaticResource lb_data}"/>
-                            <Label Style="{StaticResource lb_data}"/>
+
                         </ListView>
                     </Grid>
-                    <Grid Grid.Column="2" Grid.Row="1" >
+                    <Grid Grid.Column="3" >
                         <ListView x:Name="lv_Result" Style="{StaticResource st_listview}">
-                            <Label Style="{StaticResource lb_data}"/>
-                            <Label Style="{StaticResource lb_data}"/>
-                            <Label Style="{StaticResource lb_data}"/>
-                            <Label Style="{StaticResource lb_data}"/>
-                            <Label Style="{StaticResource lb_data}"/>
-                            <Label Style="{StaticResource lb_data}"/>
-                            <Label Style="{StaticResource lb_data}"/>
-                            <Label Style="{StaticResource lb_data}"/>
+                            <StackPanel x:Name="st_r0" Style="{StaticResource st_StackPanel_result}" />
+                            <StackPanel x:Name="st_r1" Style="{StaticResource st_StackPanel_result}" />
+                            <StackPanel x:Name="st_r2" Style="{StaticResource st_StackPanel_result}" />
+                            <StackPanel x:Name="st_r3" Style="{StaticResource st_StackPanel_result}" />
+                            <StackPanel x:Name="st_r4" Style="{StaticResource st_StackPanel_result}" />
+                            <StackPanel x:Name="st_r5" Style="{StaticResource st_StackPanel_result}" />
+                            <StackPanel x:Name="st_r6" Style="{StaticResource st_StackPanel_result}" />
+                            <StackPanel x:Name="st_r7" Style="{StaticResource st_StackPanel_result}" />
+                            <StackPanel x:Name="st_r8" Style="{StaticResource st_StackPanel_result}" />
+                            <StackPanel x:Name="st_r9" Style="{StaticResource st_StackPanel_result}" />
                         </ListView>
                     </Grid>
-                    <Grid Grid.Column="0" Grid.Row="1" >
+                    <Grid Grid.Column="0" Margin="0,53.5,0,0">
                         <ListView x:Name="lv_stt" Style="{StaticResource st_listview}">
-                            <Ellipse Width="50" Height="50" Fill="Green" Stroke="White" StrokeThickness="4"/>
-                            <Ellipse Width="50" Height="50" Fill="Green" Stroke="White" StrokeThickness="4"/>
-                            <Ellipse Width="50" Height="50" Fill="Green" Stroke="White" StrokeThickness="4"/>
-                            <Ellipse Width="50" Height="50" Fill="Green" Stroke="White" StrokeThickness="4"/>
-                            <Ellipse Width="50" Height="50" Fill="Green" Stroke="White" StrokeThickness="4"/>
-                            <Ellipse Width="50" Height="50" Fill="Green" Stroke="White" StrokeThickness="4"/>
-                            <Ellipse Width="50" Height="50" Fill="Green" Stroke="White" StrokeThickness="4"/>
-                            <Ellipse Width="50" Height="50" Fill="Green" Stroke="White" StrokeThickness="4"/>
                         </ListView>
                     </Grid>
-                    <Grid Grid.Row="1" Grid.Column="3">
+                    <Grid Grid.Row="1" Grid.Column="4">
                         <ListBox x:Name="lbox_Client">
-                            
+
                         </ListBox>
                     </Grid>
+                    <Grid Grid.Column="2 " Margin="0,53.5,0,0">
+                        <ListView x:Name="lv_actual" Style="{StaticResource st_listview}">
+                        </ListView>
+                    </Grid>
                 </Grid>
-                <Label/>
             </Grid>
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
@@ -120,10 +113,13 @@
                         <TextBox x:Name="tb_address" Style="{StaticResource st_texbox}" Text=""/>
                     </Grid>
                     <Grid Grid.Column="2">
-                        <Button Style="{StaticResource st_button}"
-                            Content="START" Click="Button_Click"/>
+                        <Button x:Name="bt_StartSV" Style="{StaticResource st_button}"
+                            Content="START" Click="Button_Click" Height="73" VerticalAlignment="Top"/>
                     </Grid>
 
+                </Grid>
+                <Grid Grid.Column="1">
+                    <Button x:Name="bt_updateStt" Content="update" Style="{StaticResource st_button}" Click="bt_updateStt_Click"/>
                 </Grid>
                 <Grid Grid.Column="2">
                     <TextBox x:Name="tb_receive" Style="{StaticResource st_texbox}" Text=""/>
