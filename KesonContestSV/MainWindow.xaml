@@ -112,12 +112,12 @@
                     </Grid>
                     <Grid Grid.Column="1">
                         <Button x:Name="bt_StartSV" Style="{StaticResource st_button}"
-                            Content="START" Click="Button_Click" Height="70" Width="150" VerticalAlignment="Top"/>
+                            Content="START" Click="Button_Click" Width="150" Margin="2,0,1,3"/>
                     </Grid>
 
                 </Grid>
                 <Grid Grid.Column="1">
-                    <Button x:Name="bt_SendData" Width="150" Height="70" HorizontalAlignment="Left" Content="Send" Style="{StaticResource st_button}" Click="bt_SendData_Click"/>
+                    <Button x:Name="bt_SendData" Width="150" Height="70" Visibility="Hidden" HorizontalAlignment="Left" Content="Send" Style="{StaticResource st_button}" Click="bt_SendData_Click"/>
                     <TextBox x:Name="tb_DataToSend" Style="{StaticResource st_texbox}" Width="350" HorizontalAlignment="Right" Text="*not"/>
                 </Grid>
                 <Grid Grid.Column="2">
@@ -140,6 +140,6 @@
 
             </Grid>
         </Grid>
-            
+
     </Grid>
 </Window>

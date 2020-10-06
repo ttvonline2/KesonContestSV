@@ -49,15 +49,17 @@ namespace KesonContestSV
         List<string> _names = new List<string>();
         private Socket _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         #endregion
-
         public MainWindow()
         {
             InitializeComponent();
             __ClientSockets = new List<SocketT2h>();
             ReadSetupData();
+            Startup();
         }
 
         #region SetupServer
+
+        //Read Address and open Socket Server
         void SetupServer()
         {
             string addr = tb_address.Text.ToString();
@@ -71,6 +73,7 @@ namespace KesonContestSV
             _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
         }
 
+        //Accept Client
         private void AcceptCallback(IAsyncResult AR)
         {
             Socket socket = _serverSocket.EndAccept(AR);
@@ -92,6 +95,7 @@ namespace KesonContestSV
 
         }
 
+        //Remove Client
         private void ReceiveCallback(IAsyncResult AR)
         {
             Socket socket = (Socket)AR.AsyncState;
@@ -179,6 +183,7 @@ namespace KesonContestSV
             socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), socket);
         }
 
+        //Send data to directly client
         void Sendata(Socket socket, string noidung)
         {
             byte[] data = Encoding.ASCII.GetBytes(noidung);
@@ -186,21 +191,26 @@ namespace KesonContestSV
             _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
         }
 
+        //Void support for Send data to client
         private void SendCallback(IAsyncResult AR)
         {
             Socket socket = (Socket)AR.AsyncState;
             socket.EndSend(AR);
         }
 
-        // Button Start server
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             SetupServer();
             
             bt_StartSV.Content = "Ready!";
             gr_ServerOnline.Opacity = 1;
+            bt_StartSV.Visibility = Visibility.Hidden;
+            bt_SendData.Visibility = Visibility.Visible;
         }
-
+        void ReadSetupData()
+        {
+            st_AllSetupData = File.ReadAllText("data.txt");
+        }
         void Startup()
         {
             update_TenGK();
@@ -223,35 +233,90 @@ namespace KesonContestSV
         }
         #endregion
 
-        #region aaa
-        void Client_Send()
+        #region Caculate
+
+        //Update new result from client.
+        void update_result(int pos, StackPanel _gr)
         {
-            for (int i = 0; i < int_ClientListSend.Length; i++)
+            _gr.Children.Clear();
+            string _file = pos.ToString() + ".txt";
+            string a = File.ReadAllText(_file);
+
+            string[] line = a.Split('|');
+            for (int i = 0; i < 8; i++)
             {
-                int_ClientListSend[i] = -1;
-            }
-            int k = 1;
-            string aa = "";
-           for(int i = 1; i < int_gk + 1; i ++)
-            {
-                if(bo_selectedGK[i])
+                string[] li = line[i].Split('-');
+                for (int j = 0; j < 4; j++)
                 {
-                    for(int j = 0; j < int_gk; j ++)
-                    {
-                        if(i== int_ttGK[j])
-                        {
-                            int_ClientListSend[k++] = j;
-                        }
-                    }
+                    string ff = li[j];
+                    int aa = Convert.ToInt16(li[j]);
+                    int_AllResult[pos, i, j] = Convert.ToInt16(li[j]);
+
                 }
+                Label _lb = new Label();
+                _lb.Content = int_AllResult[pos, i, 1] + ":" + int_AllResult[pos, i, 2] + ":" + int_AllResult[pos, i, 3];
+                _lb.Foreground = Brushes.White;
+                _lb.Background = null;
+                _lb.FontSize = 30;
+                _lb.HorizontalContentAlignment = HorizontalAlignment.Left;
+                _lb.Width = 152;
+
+                if (int_AllResult[pos, i, 0] == 0)
+                {
+                    _gr.Children.Add(Check_Done(false));
+                }
+                else
+                {
+                    _gr.Children.Add(Check_Done(true));
+                }
+
+                _gr.Children.Add(_lb);
             }
-           for(int i = 1; i < int_ClientListSend.Length; i++)
-           {
-                aa += int_ClientListSend[i] + "\t";
-           }
-            Console.WriteLine(aa);
+            sum_result();
 
         }
+
+        // Sum result and caculate the average value
+        void sum_result()
+        {
+
+            for (int j = 0; j < 8; j++)
+            {
+                int_KetQua[j, 0] = 0;
+                int_KetQua[j, 1] = 0;
+                for (int i = 0; i < int_gk; i++)
+                {
+                    int a = int_AllResult[i, j, 0];
+                    if (int_AllResult[i, j, 0] == 1)
+                    {
+                        int_KetQua[j, 0] += int_AllResult[i, j, 1] + int_AllResult[i, j, 2] + int_AllResult[i, j, 3];
+                        int_KetQua[j, 1]++;
+                    }
+                }
+
+            }
+
+            st_rkq.Children.Clear();
+            for (int i = 0; i < 8; i++)
+            {
+                Label _lb = new Label();
+                double aa = 0;
+                if (int_KetQua[i, 1] > 0)
+                {
+                    aa = (double)int_KetQua[i, 0] / int_KetQua[i, 1];
+                }
+                _lb.Content = int_KetQua[i, 0] + ":" + int_KetQua[i, 1] + "=" + aa.ToString("0.00");
+                _lb.Foreground = Brushes.White;
+                _lb.Background = null;
+                _lb.FontSize = 30;
+                _lb.HorizontalContentAlignment = HorizontalAlignment.Center;
+                _lb.Width = 180;
+                st_rkq.Children.Add(_lb);
+            }
+
+        }
+
+        //If receive a text from client. We must classify the case. So on process for each case
         void XuLyText(string text)
         {
             string st_case = text.Substring(0, 3);
@@ -320,6 +385,8 @@ namespace KesonContestSV
 
             }
         }
+
+        //Suport for XuLyText void
         void update_nowResult(int _pos)
         {
             lv_actual.Items.Clear();
@@ -347,37 +414,23 @@ namespace KesonContestSV
 
             }
         }
-        void update_GK(int vt)
-        {
-            string a = "";
-            for (int i = (vt); i < int_gk; i++)
-            {
-                int_ttGK[i] = int_ttGK[i + 1];
-            }
-            for (int i = 0; i < int_gk; i++)
-            {
-                a += int_ttGK[i] + "\t";
-            }
-            var dispatcher = this.Dispatcher;
-            dispatcher.BeginInvoke(new Action(() =>
-            {
-                lb_status.Content = a;
-                // Icon_Online(int_ttGK);
-            }));
 
+        #endregion
 
-        }
+        #region GUI
+
+        //Update icon which notify the online client
         void Icon_Online(int[] pos)
         {
             lv_stt.Items.Clear();
             string xa = "";
-            int[] _GK_tt = new int[int_gk+1];
+            int[] _GK_tt = new int[int_gk + 1];
             for (int i = 0; i < int_gk; i++)
             {
                 _GK_tt[pos[i]] = pos[i];
 
             }
-            for (int i = 1; i < int_gk+1; i++)
+            for (int i = 1; i < int_gk + 1; i++)
             {
                 if (_GK_tt[i] != 0)
                 {
@@ -432,6 +485,7 @@ namespace KesonContestSV
             Client_Send();
         }
 
+        //Update Judges name
         void update_TenGK()
         {
             lv_GK.Items.Clear();
@@ -453,6 +507,7 @@ namespace KesonContestSV
 
         }
 
+        //Update Theme name
         void update_TenChuDe()
         {
             st_r0.Children.Clear();
@@ -474,6 +529,29 @@ namespace KesonContestSV
 
         }
 
+        //Update sort of Judges
+        void update_GK(int vt)
+        {
+            string a = "";
+            for (int i = (vt); i < int_gk; i++)
+            {
+                int_ttGK[i] = int_ttGK[i + 1];
+            }
+            for (int i = 0; i < int_gk; i++)
+            {
+                a += int_ttGK[i] + "\t";
+            }
+            var dispatcher = this.Dispatcher;
+            dispatcher.BeginInvoke(new Action(() =>
+            {
+                lb_status.Content = a;
+                // Icon_Online(int_ttGK);
+            }));
+
+
+        }
+
+        // Just create a round shape
         Ellipse Check_Done(bool _var)
         {
             Ellipse _el = new Ellipse();
@@ -492,107 +570,58 @@ namespace KesonContestSV
             }
             return _el;
         }
-        void update_result(int pos, StackPanel _gr)
-        {
-            _gr.Children.Clear();
-            string _file = pos.ToString() + ".txt";
-            string a = File.ReadAllText(_file);
 
-            string[] line = a.Split('|');
-            for (int i = 0; i < 8; i++)
-            {
-                string[] li = line[i].Split('-');
-                for (int j = 0; j < 4; j++)
-                {
-                    string ff = li[j];
-                    int aa = Convert.ToInt16(li[j]);
-                    int_AllResult[pos, i, j] = Convert.ToInt16(li[j]);
-
-                }
-                Label _lb = new Label();
-                _lb.Content = int_AllResult[pos, i, 1] + ":" + int_AllResult[pos, i, 2] + ":" + int_AllResult[pos, i, 3];
-                _lb.Foreground = Brushes.White;
-                _lb.Background = null;
-                _lb.FontSize = 30;
-                _lb.HorizontalContentAlignment = HorizontalAlignment.Left;
-                _lb.Width = 152;
-
-                if (int_AllResult[pos, i, 0] == 0)
-                {
-                    _gr.Children.Add(Check_Done(false));
-                }
-                else
-                {
-                    _gr.Children.Add(Check_Done(true));
-                }
-
-                _gr.Children.Add(_lb);
-            }
-            sum_result();
-
-        }
-        void sum_result()
-        {
-
-            for (int j = 0; j < 8; j++)
-            {
-                int_KetQua[j, 0] = 0;
-                int_KetQua[j, 1] = 0;
-                for (int i = 0; i < int_gk; i++)
-                {
-                    int a = int_AllResult[i, j, 0];
-                    if (int_AllResult[i, j, 0] == 1)
-                    {
-                        int_KetQua[j, 0] += int_AllResult[i, j, 1] + int_AllResult[i, j, 2] + int_AllResult[i, j, 3];
-                        int_KetQua[j, 1]++;
-                    }
-                }
-
-            }
-
-            st_rkq.Children.Clear();
-            for (int i = 0; i < 8; i++)
-            {
-                Label _lb = new Label();
-                double aa = 0;
-                if (int_KetQua[i, 1] > 0)
-                {
-                    aa = (double)int_KetQua[i, 0] / int_KetQua[i, 1];
-                }
-                _lb.Content = int_KetQua[i, 0] + ":" + int_KetQua[i, 1] + "=" + aa.ToString("0.00");
-                _lb.Foreground = Brushes.White;
-                _lb.Background = null;
-                _lb.FontSize = 30;
-                _lb.HorizontalContentAlignment = HorizontalAlignment.Center;
-                _lb.Width = 180;
-                st_rkq.Children.Add(_lb);
-            }
-
-        }
-        void ReadSetupData()
-        {
-            st_AllSetupData = File.ReadAllText("data.txt");
-        }
         #endregion
 
+        #region interface
+
+        //Select the Client to send data
+        void Client_Send()
+        {
+            for (int i = 0; i < int_ClientListSend.Length; i++)
+            {
+                int_ClientListSend[i] = -1;
+            }
+            int k = 1;
+            string aa = "";
+            for (int i = 1; i < int_gk + 1; i++)
+            {
+                if (bo_selectedGK[i])
+                {
+                    for (int j = 0; j < int_gk; j++)
+                    {
+                        if (i == int_ttGK[j])
+                        {
+                            int_ClientListSend[k++] = j;
+                        }
+                    }
+                }
+            }
+            for (int i = 1; i < int_ClientListSend.Length; i++)
+            {
+                aa += int_ClientListSend[i] + "\t";
+            }
+            Console.WriteLine(aa);
+
+        }
+
+        //Send data to client
         private void bt_SendData_Click(object sender, RoutedEventArgs e)
         {
 
-            for(int i = 1; i < int_ClientListSend.Length; i ++ )
+            for (int i = 1; i < int_ClientListSend.Length; i++)
             {
-                if(int_ClientListSend[i] != -1)
+                if (int_ClientListSend[i] != -1)
                 {
                     Sendata(__ClientSockets[int_ClientListSend[i]]._Socket, tb_DataToSend.Text + "\r\n");
                 }
             }
-            
-
         }
 
-       
+        //Select the online client to send
         private void lv_GK_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if(lv_GK.SelectedIndex!= -1)
+            if (lv_GK.SelectedIndex != -1)
             {
                 int a = lv_GK.SelectedIndex;
                 a++;
@@ -607,7 +636,9 @@ namespace KesonContestSV
                 Icon_Online(int_ttGK);
                 lv_GK.SelectedIndex = -1;
             }
-           
+
         }
+        #endregion
+
     }
 }
