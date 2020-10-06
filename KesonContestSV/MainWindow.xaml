@@ -20,7 +20,7 @@
         </Style>
         <Style x:Key="lb_data" TargetType="Label">
             <Setter Property="Background" Value="{x:Null}"/>
-            <Setter Property="Content" Value="25 50 40   25.50.40   25|50|40   25:50:40   25|50|40   25|50|40   25|50|40   25|50|40"/>
+            <Setter Property="Content" Value=""/>
             <Setter Property="FontSize" Value="30"/>
             <Setter Property="Foreground" Value="White"/>
         </Style>
@@ -58,10 +58,10 @@
                         <ColumnDefinition Width="1.4*"/>
                         <ColumnDefinition Width="0.6*"/>
                         <ColumnDefinition Width="10*"/>
-                        <ColumnDefinition Width="0.5*"/>
                     </Grid.ColumnDefinitions>
                     <Grid Grid.Column="1"  Margin="0,53.5,0,0">
-                        <ListView x:Name="lv_GK" Style="{StaticResource st_listview}">
+                        <ListView x:Name="lv_GK" Style="{StaticResource st_listview}" 
+                                  SelectionChanged="lv_GK_SelectionChanged">
 
                         </ListView>
                     </Grid>
@@ -77,19 +77,17 @@
                             <StackPanel x:Name="st_r7" Style="{StaticResource st_StackPanel_result}" />
                             <StackPanel x:Name="st_r8" Style="{StaticResource st_StackPanel_result}" />
                             <StackPanel x:Name="st_r9" Style="{StaticResource st_StackPanel_result}" />
+                            <StackPanel x:Name="st_r10" Style="{StaticResource st_StackPanel_result}" />
+                            <StackPanel x:Name="st_rkq" Style="{StaticResource st_StackPanel_result}" />
+
                         </ListView>
                     </Grid>
                     <Grid Grid.Column="0" Margin="0,53.5,0,0">
-                        <ListView x:Name="lv_stt" Style="{StaticResource st_listview}">
+                        <ListView x:Name="lv_stt" Style="{StaticResource st_listview}" SelectionMode="Multiple" >
                         </ListView>
                     </Grid>
-                    <Grid Grid.Row="1" Grid.Column="4">
-                        <ListBox x:Name="lbox_Client">
-
-                        </ListBox>
-                    </Grid>
                     <Grid Grid.Column="2 " Margin="0,53.5,0,0">
-                        <ListView x:Name="lv_actual" Style="{StaticResource st_listview}">
+                        <ListView x:Name="lv_actual" Style="{StaticResource st_listview}" >
                         </ListView>
                     </Grid>
                 </Grid>
@@ -102,31 +100,44 @@
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Column="0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="0.5*"/>
+                        <ColumnDefinition Width="0.7*"/>
+                        <ColumnDefinition Width="1.5*"/>
                         <ColumnDefinition Width="3*"/>
-                        <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
-                    <Grid Grid.Column="0">
+                    <Grid Grid.Column="0" Opacity="0" x:Name="gr_ServerOnline">
                         <Ellipse Width="50" Height="50" Fill="Green" Stroke="White" StrokeThickness="4"/>
                     </Grid>
-                    <Grid Grid.Column="1">
+                    <Grid Grid.Column="2">
                         <TextBox x:Name="tb_address" Style="{StaticResource st_texbox}" Text=""/>
                     </Grid>
-                    <Grid Grid.Column="2">
+                    <Grid Grid.Column="1">
                         <Button x:Name="bt_StartSV" Style="{StaticResource st_button}"
-                            Content="START" Click="Button_Click" Height="73" VerticalAlignment="Top"/>
+                            Content="START" Click="Button_Click" Height="70" Width="150" VerticalAlignment="Top"/>
                     </Grid>
 
                 </Grid>
                 <Grid Grid.Column="1">
-                    <Button x:Name="bt_updateStt" Content="update" Style="{StaticResource st_button}" Click="bt_updateStt_Click"/>
+                    <Button x:Name="bt_SendData" Width="150" Height="70" HorizontalAlignment="Left" Content="Send" Style="{StaticResource st_button}" Click="bt_SendData_Click"/>
+                    <TextBox x:Name="tb_DataToSend" Style="{StaticResource st_texbox}" Width="350" HorizontalAlignment="Right" Text="*not"/>
                 </Grid>
                 <Grid Grid.Column="2">
-                    <TextBox x:Name="tb_receive" Style="{StaticResource st_texbox}" Text=""/>
+                    <TextBox x:Name="tb_receive" Style="{StaticResource st_texbox}" Text="" FontSize="10"/>
                 </Grid>
             </Grid>
             <Grid Grid.Row="2">
-                <Label x:Name="lb_status" Style="{StaticResource lb_data}"/>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="5*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Column="0">
+                    <Label x:Name="lb_status" Style="{StaticResource lb_data}"/>
+                </Grid>
+                <Grid Grid.Column="1">
+                    <ListBox x:Name="lbox_Client">
+
+                    </ListBox>
+                </Grid>
+
             </Grid>
         </Grid>
             

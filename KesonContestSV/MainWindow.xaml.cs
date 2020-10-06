@@ -30,14 +30,18 @@ namespace KesonContestSV
     public partial class MainWindow : Window
     {
         #region var
+        bool[] bo_selectedGK = new bool[11];
         string[] st_Result = new string[20];
+        String st_AllSetupData;
         int int_removeID;
-        int int_gk = 9;
+        int[] int_ClientSend = new int[11];
+        int[] int_ClientListSend = new int[11];
+        int int_gk = 0;
+        int[,] int_KetQua = new int[10,2];
         int[] int_ttGK = new int[20];
         private const int PORT = 197;
         IPAddress address = IPAddress.Parse("10.12.20.25");
-        int[,] int_AllResult = new int[10, 4];
-        String filePath;
+        int[,,] int_AllResult = new int[11,8, 4]; //GK,Theme,Value
 
         private byte[] _buffer = new byte[1024];
         int int_curGk = 0;
@@ -50,6 +54,7 @@ namespace KesonContestSV
         {
             InitializeComponent();
             __ClientSockets = new List<SocketT2h>();
+            ReadSetupData();
         }
 
         #region SetupServer
@@ -87,18 +92,6 @@ namespace KesonContestSV
 
         }
 
-        int Search_Index_Adress(string address_now)
-        {
-            for (int i = 0; i < lbox_Client.Items.Count; i++)
-            {
-                if (address_now == lbox_Client.Items[i].ToString())
-                {
-                    return i;
-                }
-            }
-            return -1;
-
-        }
         private void ReceiveCallback(IAsyncResult AR)
         {
             Socket socket = (Socket)AR.AsyncState;
@@ -152,20 +145,9 @@ namespace KesonContestSV
 
                     string reponse = string.Empty;
 
-                    for (int i = 0; i < __ClientSockets.Count; i++)
+                    if (text.Substring(0, 3) == "*da")
                     {
-                        if (socket.RemoteEndPoint.ToString().Equals(__ClientSockets[i]._Socket.RemoteEndPoint.ToString()))
-                        {
-                            dispatcher.BeginInvoke(new Action(() =>
-                            {
-                                //lbStatus2.Content = ("\n" + __ClientSockets[i]._Name + ": " + text);
-                            }));
-
-                        }
-                    }
-                    if (text == "bye")
-                    {
-                        return;
+                        Sendata(socket, st_AllSetupData);
                     }
                     reponse = text;
                     //Sendata(socket, reponse);
@@ -182,10 +164,11 @@ namespace KesonContestSV
                             dispatcher.BeginInvoke(new Action(() =>
                             {
                                 //lbStatus.Content = "Số client đang kết nối: " + __ClientSockets.Count.ToString();
-                                lbox_Client.Items.RemoveAt(int_removeID);
                                 int_curGk--;
-                                update_GK(i);
+                                lbox_Client.Items.RemoveAt(int_removeID);
+                                Icon_Online(int_ttGK);
                             }));
+                            update_GK(i);
                             __ClientSockets.RemoveAt(i);
                         }
                     }
@@ -209,19 +192,73 @@ namespace KesonContestSV
             socket.EndSend(AR);
         }
 
+        // Button Start server
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             SetupServer();
+            
             bt_StartSV.Content = "Ready!";
+            gr_ServerOnline.Opacity = 1;
+        }
+
+        void Startup()
+        {
+            update_TenGK();
+            Icon_Online(int_ttGK);
+
+
+            // Create_GKResult();
+            update_result(1, st_r1);
+            update_result(2, st_r2);
+            update_result(3, st_r3);
+            update_result(4, st_r4);
+            update_result(5, st_r5);
+            update_result(6, st_r6);
+            update_result(7, st_r7);
+            update_result(8, st_r8);
+            update_result(9, st_r9);
+            update_result(10, st_r10);
+
+            update_TenChuDe();
         }
         #endregion
+
+        #region aaa
+        void Client_Send()
+        {
+            for (int i = 0; i < int_ClientListSend.Length; i++)
+            {
+                int_ClientListSend[i] = -1;
+            }
+            int k = 1;
+            string aa = "";
+           for(int i = 1; i < int_gk + 1; i ++)
+            {
+                if(bo_selectedGK[i])
+                {
+                    for(int j = 0; j < int_gk; j ++)
+                    {
+                        if(i== int_ttGK[j])
+                        {
+                            int_ClientListSend[k++] = j;
+                        }
+                    }
+                }
+            }
+           for(int i = 1; i < int_ClientListSend.Length; i++)
+           {
+                aa += int_ClientListSend[i] + "\t";
+           }
+            Console.WriteLine(aa);
+
+        }
         void XuLyText(string text)
         {
             string st_case = text.Substring(0, 3);
-            if(st_case == "*cn")
+            if (st_case == "*cn")
             {
-                lb_status.Content = text.Substring(3, 1) + " - Connected!";
-                int_ttGK[int_curGk-1] = Convert.ToInt16(text.Substring(3, 1));
+                //lb_status.Content = text.Substring(3, 1) + " - Connected!";
+                int_ttGK[int_curGk - 1] = Convert.ToInt16(text.Substring(3, 2));
                 string a = "";
                 for (int i = 0; i < int_gk; i++)
                 {
@@ -230,10 +267,10 @@ namespace KesonContestSV
                 lb_status.Content = a;
                 Icon_Online(int_ttGK);
             }
-            else if(st_case =="*re")
+            else if (st_case == "*re")
             {
                 string _result = text.Substring(4);
-                lb_status.Content = _result;
+                //lb_status.Content = _result;
                 string _pos = text.Substring(3, 1);
                 string _file = _pos + ".txt";
                 File.WriteAllText(_file, "");
@@ -243,7 +280,7 @@ namespace KesonContestSV
                 {
                     update_result(1, st_r1);
                 }
-                else if(_pos =="2")
+                else if (_pos == "2")
                 {
                     update_result(2, st_r2);
                 }
@@ -271,15 +308,24 @@ namespace KesonContestSV
                 {
                     update_result(8, st_r8);
                 }
+                else if (_pos == "9")
+                {
+                    update_result(9, st_r8);
+                }
+                else if (_pos == "10")
+                {
+                    update_result(10, st_r8);
+                }
+
 
             }
         }
         void update_nowResult(int _pos)
         {
             lv_actual.Items.Clear();
-            for(int i = 0; i < int_gk; i++)
+            for (int i = 0; i < int_gk; i++)
             {
-                if(i == (_pos-1))
+                if (i == (_pos - 1))
                 {
                     Grid _gr = new Grid();
                     _gr.Width = 50; _gr.Height = 50;
@@ -292,23 +338,23 @@ namespace KesonContestSV
                     _gr.Children.Add(_el);
                     lv_actual.Items.Add(_gr);
                 }
-                else 
+                else
                 {
                     Grid _gr = new Grid();
                     _gr.Width = 50; _gr.Height = 50;
                     lv_actual.Items.Add(_gr);
                 }
-            
+
             }
         }
         void update_GK(int vt)
         {
             string a = "";
-            for(int i = (vt); i < int_gk; i++)
+            for (int i = (vt); i < int_gk; i++)
             {
                 int_ttGK[i] = int_ttGK[i + 1];
             }
-            for(int i = 0; i < int_gk; i++)
+            for (int i = 0; i < int_gk; i++)
             {
                 a += int_ttGK[i] + "\t";
             }
@@ -316,37 +362,55 @@ namespace KesonContestSV
             dispatcher.BeginInvoke(new Action(() =>
             {
                 lb_status.Content = a;
-               // Icon_Online(int_ttGK);
+                // Icon_Online(int_ttGK);
             }));
-            
+
 
         }
         void Icon_Online(int[] pos)
         {
             lv_stt.Items.Clear();
-            int[] _GK_tt = new int[int_gk];
-            for(int i = 0; i < int_gk; i ++)
+            string xa = "";
+            int[] _GK_tt = new int[int_gk+1];
+            for (int i = 0; i < int_gk; i++)
             {
                 _GK_tt[pos[i]] = pos[i];
-               
+
             }
-            for(int i = 1; i < int_gk; i ++)
+            for (int i = 1; i < int_gk+1; i++)
             {
                 if (_GK_tt[i] != 0)
                 {
-                    Grid _gr = new Grid();
-                    _gr.Width = 50; _gr.Height = 50;
-                    Ellipse _el = new Ellipse();
-                    _el.Width = 49.5;
-                    _el.Height = 49.5;
-                    _el.Stroke = Brushes.White;
-                    _el.Fill = Brushes.Green;
-                    _el.StrokeThickness = 4;
-                    _gr.Children.Add(_el);
-                    lv_stt.Items.Add(_gr);
+                    if (bo_selectedGK[i])
+                    {
+                        Grid _gr = new Grid();
+                        _gr.Width = 50; _gr.Height = 50;
+                        Ellipse _el = new Ellipse();
+                        _el.Width = 49.5;
+                        _el.Height = 49.5;
+                        _el.Stroke = Brushes.White;
+                        _el.Fill = Brushes.Orange;
+                        _el.StrokeThickness = 4;
+                        _gr.Children.Add(_el);
+                        lv_stt.Items.Add(_gr);
+                    }
+                    else
+                    {
+                        Grid _gr = new Grid();
+                        _gr.Width = 50; _gr.Height = 50;
+                        Ellipse _el = new Ellipse();
+                        _el.Width = 49.5;
+                        _el.Height = 49.5;
+                        _el.Stroke = Brushes.White;
+                        _el.Fill = Brushes.Green;
+                        _el.StrokeThickness = 4;
+                        _gr.Children.Add(_el);
+                        lv_stt.Items.Add(_gr);
+                    }
                 }
                 else
                 {
+                    bo_selectedGK[i] = false;
                     Grid _gr = new Grid();
                     _gr.Width = 50; _gr.Height = 50;
                     Ellipse _el = new Ellipse();
@@ -360,27 +424,22 @@ namespace KesonContestSV
                     lv_stt.Items.Add(_gr);
                 }
             }
+            for (int k = 0; k < bo_selectedGK.Length; k++)
+            {
+                xa += bo_selectedGK[k].ToString() + "\t";
+            }
+            Console.WriteLine(xa);
+            Client_Send();
         }
 
-        private void bt_updateStt_Click(object sender, RoutedEventArgs e)
-        {
-            Icon_Online(int_ttGK);
-            update_TenGK();
-
-           // Create_GKResult();
-            update_result(1, st_r1);
-            update_TenChuDe();
-
-
-        }
         void update_TenGK()
         {
             lv_GK.Items.Clear();
             String[] Text = File.ReadAllLines("TenGiamKhao.txt");
-            for(int i = 0; i < Text.Length; i++)
+            for (int i = 0; i < Text.Length; i++)
             {
                 Grid _gr = new Grid();
-                _gr.Width = 200; _gr.Height = 50;
+                _gr.Width = 150; _gr.Height = 50;
                 Label _lb = new Label();
                 _lb.Content = Text[i];
                 _lb.Foreground = Brushes.White;
@@ -389,20 +448,9 @@ namespace KesonContestSV
                 _gr.Children.Add(_lb);
                 lv_GK.Items.Add(_gr);
             }
-            
+            int_gk = Text.Length;
 
-        }
-        void Create_GKResult()
-        {
-            for(int i = 1; i < int_gk; i ++)
-            {
-                string _file = i.ToString() + ".txt";
-                if(!File.Exists(_file))
-                {
-                    File.WriteAllText(_file, "0-25-40-00|1-26-28-40|0-25-40-00|1-26-28-40|0-25-40-00|1-26-28-40|0-25-40-00|1-26-28-40|");
-                    
-                }
-            }
+
         }
 
         void update_TenChuDe()
@@ -432,7 +480,7 @@ namespace KesonContestSV
             _el.Width = 30;
             _el.Height = 30;
             _el.Stroke = Brushes.White;
-            
+
             _el.StrokeThickness = 2;
             if (_var)
             {
@@ -444,31 +492,32 @@ namespace KesonContestSV
             }
             return _el;
         }
-        void update_result(int pos,StackPanel _gr)
+        void update_result(int pos, StackPanel _gr)
         {
             _gr.Children.Clear();
             string _file = pos.ToString() + ".txt";
             string a = File.ReadAllText(_file);
-            
+
             string[] line = a.Split('|');
-            for(int i = 0; i < line.Length; i++)
+            for (int i = 0; i < 8; i++)
             {
                 string[] li = line[i].Split('-');
-                for(int j = 0; j < li.Length;j++)
+                for (int j = 0; j < 4; j++)
                 {
                     string ff = li[j];
-                    int_AllResult[i, j] = Convert.ToInt16(li[j]);
-                    
+                    int aa = Convert.ToInt16(li[j]);
+                    int_AllResult[pos, i, j] = Convert.ToInt16(li[j]);
+
                 }
                 Label _lb = new Label();
-                _lb.Content = int_AllResult[i,1] + ":" + int_AllResult[i, 2] + ":" + int_AllResult[i, 3];
+                _lb.Content = int_AllResult[pos, i, 1] + ":" + int_AllResult[pos, i, 2] + ":" + int_AllResult[pos, i, 3];
                 _lb.Foreground = Brushes.White;
                 _lb.Background = null;
                 _lb.FontSize = 30;
                 _lb.HorizontalContentAlignment = HorizontalAlignment.Left;
                 _lb.Width = 152;
-               
-                if(int_AllResult[i,0] == 0)
+
+                if (int_AllResult[pos, i, 0] == 0)
                 {
                     _gr.Children.Add(Check_Done(false));
                 }
@@ -476,10 +525,89 @@ namespace KesonContestSV
                 {
                     _gr.Children.Add(Check_Done(true));
                 }
-                
+
                 _gr.Children.Add(_lb);
             }
+            sum_result();
+
+        }
+        void sum_result()
+        {
+
+            for (int j = 0; j < 8; j++)
+            {
+                int_KetQua[j, 0] = 0;
+                int_KetQua[j, 1] = 0;
+                for (int i = 0; i < int_gk; i++)
+                {
+                    int a = int_AllResult[i, j, 0];
+                    if (int_AllResult[i, j, 0] == 1)
+                    {
+                        int_KetQua[j, 0] += int_AllResult[i, j, 1] + int_AllResult[i, j, 2] + int_AllResult[i, j, 3];
+                        int_KetQua[j, 1]++;
+                    }
+                }
+
+            }
+
+            st_rkq.Children.Clear();
+            for (int i = 0; i < 8; i++)
+            {
+                Label _lb = new Label();
+                double aa = 0;
+                if (int_KetQua[i, 1] > 0)
+                {
+                    aa = (double)int_KetQua[i, 0] / int_KetQua[i, 1];
+                }
+                _lb.Content = int_KetQua[i, 0] + ":" + int_KetQua[i, 1] + "=" + aa.ToString("0.00");
+                _lb.Foreground = Brushes.White;
+                _lb.Background = null;
+                _lb.FontSize = 30;
+                _lb.HorizontalContentAlignment = HorizontalAlignment.Center;
+                _lb.Width = 180;
+                st_rkq.Children.Add(_lb);
+            }
+
+        }
+        void ReadSetupData()
+        {
+            st_AllSetupData = File.ReadAllText("data.txt");
+        }
+        #endregion
+
+        private void bt_SendData_Click(object sender, RoutedEventArgs e)
+        {
+
+            for(int i = 1; i < int_ClientListSend.Length; i ++ )
+            {
+                if(int_ClientListSend[i] != -1)
+                {
+                    Sendata(__ClientSockets[int_ClientListSend[i]]._Socket, tb_DataToSend.Text + "\r\n");
+                }
+            }
             
+
+        }
+
+       
+        private void lv_GK_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if(lv_GK.SelectedIndex!= -1)
+            {
+                int a = lv_GK.SelectedIndex;
+                a++;
+                if (bo_selectedGK[a])
+                {
+                    bo_selectedGK[a] = false;
+                }
+                else
+                {
+                    bo_selectedGK[a] = true;
+                }
+                Icon_Online(int_ttGK);
+                lv_GK.SelectedIndex = -1;
+            }
+           
         }
     }
 }
