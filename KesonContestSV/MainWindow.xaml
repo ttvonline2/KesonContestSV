@@ -10,11 +10,11 @@
     <Window.Resources>
         <Style x:Key="st_texbox" TargetType="TextBox">
             <Setter Property="Background" Value="{x:Null}"/>
-            <Setter Property="Text" Value="Hello"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="FontSize" Value="30"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="BorderBrush" Value="{x:Null}"/>
             <Setter Property="BorderThickness" Value="0"/>
         </Style>
@@ -35,6 +35,7 @@
             <Setter Property="Background" Value="Orange"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontSize" Value="30"/>
+            <Setter Property="Cursor" Value="Hand"/>
         </Style>
         <Style x:Key="st_StackPanel_result" TargetType="StackPanel">
             <Setter Property="Background" Value="{x:Null}"/>
@@ -78,6 +79,7 @@
                             <StackPanel x:Name="st_r8" Style="{StaticResource st_StackPanel_result}" />
                             <StackPanel x:Name="st_r9" Style="{StaticResource st_StackPanel_result}" />
                             <StackPanel x:Name="st_r10" Style="{StaticResource st_StackPanel_result}" />
+                            <StackPanel x:Name="st_rcount" Style="{StaticResource st_StackPanel_result}" />
                             <StackPanel x:Name="st_rkq" Style="{StaticResource st_StackPanel_result}" />
 
                         </ListView>
@@ -118,24 +120,40 @@
                 </Grid>
                 <Grid Grid.Column="1">
                     <Button x:Name="bt_SendData" Width="150" Height="70" Visibility="Hidden" HorizontalAlignment="Left" Content="Send" Style="{StaticResource st_button}" Click="bt_SendData_Click"/>
-                    <TextBox x:Name="tb_DataToSend" Style="{StaticResource st_texbox}" Width="350" HorizontalAlignment="Right" Text="*not"/>
+                    <TextBox x:Name="tb_DataToSend" Style="{StaticResource st_texbox}" Width="350" HorizontalAlignment="Right" Cursor="Pen"/>
                 </Grid>
                 <Grid Grid.Column="2">
-                    <TextBox x:Name="tb_receive" Style="{StaticResource st_texbox}" Text="" FontSize="10"/>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="5*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0">
+                        <Button Style="{StaticResource st_button}" Content="Next" x:Name="bt_Next" Click="bt_Next_Click" />
+                    </Grid>
+                    <Grid Grid.Column="1">
+                        <TextBox x:Name="tb_receive" Style="{StaticResource st_texbox}" Text="" FontSize="10"/>
+
+                    </Grid>
+                
                 </Grid>
             </Grid>
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="5*"/>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Column="0">
-                    <Label x:Name="lb_status" Style="{StaticResource lb_data}"/>
+                    <Label x:Name="lb_status" Style="{StaticResource lb_data}" FontSize="13"/>
                 </Grid>
-                <Grid Grid.Column="1">
+                <Grid Grid.Column="2">
                     <ListBox x:Name="lbox_Client">
 
                     </ListBox>
+                </Grid>
+                <Grid Grid.Column="1">
+                    <Button x:Name="bt_SaveResult" Click="bt_SaveResult_Click"
+                            Style="{StaticResource st_button}" Content="Save Data" />
                 </Grid>
 
             </Grid>

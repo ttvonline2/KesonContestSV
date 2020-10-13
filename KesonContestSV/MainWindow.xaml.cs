@@ -30,7 +30,8 @@ namespace KesonContestSV
     public partial class MainWindow : Window
     {
         #region var
-        bool[] bo_selectedGK = new bool[11];
+        int[,] int_remove = new int[11, 9];
+        bool[] bo_selectedGK = new bool[12];
         string[] st_Result = new string[20];
         String st_AllSetupData;
         int int_removeID;
@@ -41,7 +42,7 @@ namespace KesonContestSV
         int[] int_ttGK = new int[20];
         private const int PORT = 197;
         IPAddress address = IPAddress.Parse("10.12.20.25");
-        int[,,] int_AllResult = new int[11,8, 4]; //GK,Theme,Value
+        int[,,] int_AllResult = new int[12,8, 4]; //GK,Theme,Value
 
         private byte[] _buffer = new byte[1024];
         int int_curGk = 0;
@@ -210,10 +211,33 @@ namespace KesonContestSV
         void ReadSetupData()
         {
             st_AllSetupData = File.ReadAllText("data.txt");
+
+        }
+        void update_remove()
+        {
+
+            string[] line = File.ReadAllLines("remove.txt");
+            try
+            {
+                for (int i = 0; i < line.Length; i++)
+                {
+                    string[] _val = line[i].Split('|');
+                    for (int j = 0; j < _val.Length; j++)
+                    {
+                        int_remove[i+1, j] = Convert.ToInt16(_val[j]);
+                    }
+                }
+            }
+            catch(Exception ee)
+            {
+                MessageBox.Show(ee.ToString());
+            }
+
         }
         void Startup()
         {
             update_TenGK();
+            update_remove();
             Icon_Online(int_ttGK);
 
 
@@ -239,39 +263,46 @@ namespace KesonContestSV
         void update_result(int pos, StackPanel _gr)
         {
             _gr.Children.Clear();
-            string _file = pos.ToString() + ".txt";
+            string _file = pos.ToString("00") + ".txt";
             string a = File.ReadAllText(_file);
-
-            string[] line = a.Split('|');
-            for (int i = 0; i < 8; i++)
+            try
             {
-                string[] li = line[i].Split('-');
-                for (int j = 0; j < 4; j++)
+                string[] line = a.Split('|');
+                for (int i = 0; i < 8; i++)
                 {
-                    string ff = li[j];
-                    int aa = Convert.ToInt16(li[j]);
-                    int_AllResult[pos, i, j] = Convert.ToInt16(li[j]);
+                    string[] li = line[i].Split('-');
+                    for (int j = 0; j < 4; j++)
+                    {
+                        string ff = li[j];
+                        int aa = Convert.ToInt16(li[j]);
+                        int_AllResult[pos, i, j] = Convert.ToInt16(li[j]);
 
-                }
-                Label _lb = new Label();
-                _lb.Content = int_AllResult[pos, i, 1] + ":" + int_AllResult[pos, i, 2] + ":" + int_AllResult[pos, i, 3];
-                _lb.Foreground = Brushes.White;
-                _lb.Background = null;
-                _lb.FontSize = 30;
-                _lb.HorizontalContentAlignment = HorizontalAlignment.Left;
-                _lb.Width = 152;
+                    }
+                    Label _lb = new Label();
+                    _lb.Content = int_AllResult[pos, i, 1] + ":" + int_AllResult[pos, i, 2] + ":" + int_AllResult[pos, i, 3];
+                    _lb.Foreground = Brushes.White;
+                    _lb.Background = null;
+                    _lb.FontSize = 30;
+                    _lb.HorizontalContentAlignment = HorizontalAlignment.Left;
+                    _lb.Width = 152;
 
-                if (int_AllResult[pos, i, 0] == 0)
-                {
-                    _gr.Children.Add(Check_Done(false));
-                }
-                else
-                {
-                    _gr.Children.Add(Check_Done(true));
-                }
+                    if (int_AllResult[pos, i, 0] == 0)
+                    {
+                        _gr.Children.Add(Check_Done(false));
+                    }
+                    else
+                    {
+                        _gr.Children.Add(Check_Done(true));
+                    }
 
-                _gr.Children.Add(_lb);
+                    _gr.Children.Add(_lb);
+                }
             }
+            catch
+            {
+                Console.WriteLine("Errorrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr!");
+            }
+
             sum_result();
 
         }
@@ -284,10 +315,10 @@ namespace KesonContestSV
             {
                 int_KetQua[j, 0] = 0;
                 int_KetQua[j, 1] = 0;
-                for (int i = 0; i < int_gk; i++)
+                for (int i = 1; i < int_gk +1; i++)
                 {
                     int a = int_AllResult[i, j, 0];
-                    if (int_AllResult[i, j, 0] == 1)
+                    if ((int_AllResult[i, j, 0] == 1) && (int_remove[i,j] == 1))
                     {
                         int_KetQua[j, 0] += int_AllResult[i, j, 1] + int_AllResult[i, j, 2] + int_AllResult[i, j, 3];
                         int_KetQua[j, 1]++;
@@ -305,13 +336,32 @@ namespace KesonContestSV
                 {
                     aa = (double)int_KetQua[i, 0] / int_KetQua[i, 1];
                 }
-                _lb.Content = int_KetQua[i, 0] + ":" + int_KetQua[i, 1] + "=" + aa.ToString("0.00");
+                _lb.Content =aa.ToString("0.00");
                 _lb.Foreground = Brushes.White;
                 _lb.Background = null;
                 _lb.FontSize = 30;
                 _lb.HorizontalContentAlignment = HorizontalAlignment.Center;
                 _lb.Width = 180;
                 st_rkq.Children.Add(_lb);
+            }
+            // Count
+
+            st_rcount.Children.Clear();
+            for (int i = 0; i < 8; i++)
+            {
+                Label _lb = new Label();
+                double aa = 0;
+                if (int_KetQua[i, 1] > 0)
+                {
+                    aa = (double)int_KetQua[i, 0] / int_KetQua[i, 1];
+                }
+                _lb.Content = int_KetQua[i, 0] + " : " + int_KetQua[i, 1];
+                _lb.Foreground = Brushes.White;
+                _lb.Background = null;
+                _lb.FontSize = 30;
+                _lb.HorizontalContentAlignment = HorizontalAlignment.Center;
+                _lb.Width = 180;
+                st_rcount.Children.Add(_lb);
             }
 
         }
@@ -334,55 +384,52 @@ namespace KesonContestSV
             }
             else if (st_case == "*re")
             {
-                string _result = text.Substring(4);
+                string _result = text.Substring(5);
                 //lb_status.Content = _result;
-                string _pos = text.Substring(3, 1);
+                string _pos = text.Substring(3, 2);
                 string _file = _pos + ".txt";
-                File.WriteAllText(_file, "");
                 File.WriteAllText(_file, _result);
                 update_nowResult(Convert.ToInt16(_pos));
-                if (_pos == "1")
+                if (_pos == "01")
                 {
                     update_result(1, st_r1);
                 }
-                else if (_pos == "2")
+                else if (_pos == "02")
                 {
                     update_result(2, st_r2);
                 }
-                else if (_pos == "3")
+                else if (_pos == "03")
                 {
                     update_result(3, st_r3);
                 }
-                else if (_pos == "4")
+                else if (_pos == "04")
                 {
                     update_result(4, st_r4);
                 }
-                else if (_pos == "5")
+                else if (_pos == "05")
                 {
                     update_result(5, st_r5);
                 }
-                else if (_pos == "6")
+                else if (_pos == "06")
                 {
                     update_result(6, st_r6);
                 }
-                else if (_pos == "7")
+                else if (_pos == "07")
                 {
                     update_result(7, st_r7);
                 }
-                else if (_pos == "8")
+                else if (_pos == "08")
                 {
                     update_result(8, st_r8);
                 }
-                else if (_pos == "9")
+                else if (_pos == "09")
                 {
-                    update_result(9, st_r8);
+                    update_result(9, st_r9);
                 }
                 else if (_pos == "10")
                 {
-                    update_result(10, st_r8);
+                    update_result(10, st_r10);
                 }
-
-
             }
         }
 
@@ -424,13 +471,13 @@ namespace KesonContestSV
         {
             lv_stt.Items.Clear();
             string xa = "";
-            int[] _GK_tt = new int[int_gk + 1];
+            int[] _GK_tt = new int[int_gk];
             for (int i = 0; i < int_gk; i++)
             {
                 _GK_tt[pos[i]] = pos[i];
 
             }
-            for (int i = 1; i < int_gk + 1; i++)
+            for (int i = 1; i < int_gk; i++)
             {
                 if (_GK_tt[i] != 0)
                 {
@@ -502,7 +549,7 @@ namespace KesonContestSV
                 _gr.Children.Add(_lb);
                 lv_GK.Items.Add(_gr);
             }
-            int_gk = Text.Length;
+            int_gk = Text.Length + 1;
 
 
         }
@@ -613,7 +660,7 @@ namespace KesonContestSV
             {
                 if (int_ClientListSend[i] != -1)
                 {
-                    Sendata(__ClientSockets[int_ClientListSend[i]]._Socket, tb_DataToSend.Text + "\r\n");
+                    Sendata(__ClientSockets[int_ClientListSend[i]]._Socket, tb_DataToSend.Text + "*not\r\n");
                 }
             }
         }
@@ -638,7 +685,28 @@ namespace KesonContestSV
             }
 
         }
+
+        //Open Theme 2
+        private void bt_Next_Click(object sender, RoutedEventArgs e)
+        {
+            for (int i = 1; i < int_ClientListSend.Length; i++)
+            {
+                if (int_ClientListSend[i] != -1)
+                {
+                    Sendata(__ClientSockets[int_ClientListSend[i]]._Socket,  "aa*nex\r\n");
+                }
+            }
+        }
         #endregion
 
+        private void bt_SaveResult_Click(object sender, RoutedEventArgs e)
+        {
+            string kq = "";
+            for(int i = 0; i < 8; i ++)
+            {
+                kq  += ((double)int_KetQua[i, 0] / int_KetQua[i, 1]).ToString("00.00") + "\r\n";
+            }
+            File.WriteAllText("KetQuaThiDau.txt", kq);
+        }
     }
 }
